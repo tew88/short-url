@@ -1,10 +1,21 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
+}
+
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'eclipse'
+
+mainClassName = 'io.tew88.shorturl.ShortUrlApplication'
 
 repositories {
     jcenter()
 }
 
 dependencies {
+    compile 'io.dropwizard:dropwizard-core:0.7.1',
+            'com.hubspot.dropwizard:dropwizard-guice:0.7.0.2',
+            'org.projectlombok:lombok:1.14.8'
+    
     testCompile 'junit:junit:4.11'
 }
