@@ -15,7 +15,11 @@ repositories {
 dependencies {
     compile 'io.dropwizard:dropwizard-core:0.7.1',
             'com.hubspot.dropwizard:dropwizard-guice:0.7.0.2',
-            'org.projectlombok:lombok:1.14.8'
+            'org.projectlombok:lombok:1.14.8',
+            'com.google.guava:guava:18.0',
+            'commons-validator:commons-validator:1.4.1'
     
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.11', 
+                'org.assertj:assertj-core:1.7.1'
+    
 }
