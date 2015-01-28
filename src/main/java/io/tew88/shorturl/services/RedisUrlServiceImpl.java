@@ -3,17 +3,18 @@ package io.tew88.shorturl.services;
 import javax.inject.Inject;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import io.tew88.shorturl.domain.UrlMapping;
 
 import com.google.common.base.Optional;
 
 public class RedisUrlServiceImpl extends UrlService {
     
-    private final Jedis jedis;
+    private final JedisPool jedisPool;
     
     @Inject
-    public RedisUrlServiceImpl(final Jedis jedis) {
-        this.jedis = jedis;
+    public RedisUrlServiceImpl(final JedisPool jedisPool) {
+        this.jedisPool = jedisPool;
     }
 
     @Override
@@ -23,7 +24,9 @@ public class RedisUrlServiceImpl extends UrlService {
             String shortUrl = encodeUrl(url);
             UrlMapping urlMapping = new UrlMapping(url, shortUrl);
             
-            persistUrlMappingToRedis(shortUrl, shortUrl);
+            try (Jedis jedis = jedisPool.getResource()) {
+                jedis.set(shortUrl, url);
+            }
             
             return Optional.of(urlMapping);
         }
@@ -33,15 +36,12 @@ public class RedisUrlServiceImpl extends UrlService {
 
     @Override
     public Optional<UrlMapping> getUrl(String shortUrl) {
-        if (jedis.exists(shortUrl)) {
-            UrlMapping urlMapping = new UrlMapping(jedis.get(shortUrl), shortUrl);
-            return Optional.of(urlMapping);
+        try (Jedis jedis = jedisPool.getResource()) {
+            if (jedis.exists(shortUrl)) {
+                UrlMapping urlMapping = new UrlMapping(jedis.get(shortUrl), shortUrl);
+                return Optional.of(urlMapping);
+            }
+            return Optional.absent();
         }
-        return Optional.absent();
-    }
-
-    private void persistUrlMappingToRedis(final String shortUrl, final String url) {
-        jedis.set(shortUrl, url);
-        
     }
 }
